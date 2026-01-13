@@ -15,6 +15,7 @@ export function useAuth() {
     useEffect(() => {
         const authStatus = localStorage.getItem(AUTH_KEY);
         if (authStatus === "true") {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsAuthenticated(true);
         }
         setIsCheckingAuth(false);

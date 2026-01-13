@@ -19,6 +19,7 @@ export function Header({ onLogout, onDownload, activeView, onViewChange }: Heade
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => setMounted(true), []);
 
     const currentDate = new Date().toLocaleDateString("en-US", {

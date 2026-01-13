@@ -81,7 +81,19 @@ export function GuestListTable({ invitations }: GuestListTableProps) {
     const totalDeclined = filteredGuests.filter(g => !g.attending).length;
 
     if (allGuests.length === 0) {
-        return null; // Don't show if no data
+        return (
+            <div className="mx-4 md:mx-12 mb-12 animate-fadeInUp" style={{ animationDelay: '300ms' }}>
+                <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg border border-wedding-champagne/30 dark:border-zinc-700 p-12 text-center">
+                    <User className="w-12 h-12 text-wedding-gold/30 mx-auto mb-4" />
+                    <h3 className="text-xl font-serif text-wedding-charcoal dark:text-wedding-ivory mb-2">
+                        No responses yet
+                    </h3>
+                    <p className="text-wedding-dove">
+                        Guest responses will appear here once they start RSVPing.
+                    </p>
+                </div>
+            </div>
+        );
     }
 
     return (
