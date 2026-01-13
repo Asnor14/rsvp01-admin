@@ -6,6 +6,7 @@ import {
     getDashboardStats,
     deleteInvitation,
     updateInvitation,
+    toggleInvitationStatus,
 } from "../actions";
 import { supabase } from "@/lib/supabase";
 import type { InvitationWithGuests, DashboardStats } from "@/lib/supabase";
@@ -164,6 +165,21 @@ export function useDashboard({ isAuthenticated, addToast }: UseDashboardProps) {
         [addToast, fetchData]
     );
 
+    const handleToggleStatus = useCallback(
+        async (id: string, currentStatus: string) => {
+            const result = await toggleInvitationStatus(id, currentStatus);
+            if (result.success) {
+                const newStatus = currentStatus === "pending" ? "responded" : "pending";
+                const label = newStatus === "pending" ? "unlocked" : "locked";
+                addToast("success", `Invitation ${label}`);
+                fetchData();
+            } else {
+                addToast("error", result.error || "Failed to toggle status");
+            }
+        },
+        [addToast, fetchData]
+    );
+
     return {
         stats,
         invitations,
@@ -181,5 +197,6 @@ export function useDashboard({ isAuthenticated, addToast }: UseDashboardProps) {
         openDownloadModal,
         closeDownloadModal,
         handleUpdateMaxGuests,
+        handleToggleStatus,
     };
 }

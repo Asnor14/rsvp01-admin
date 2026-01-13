@@ -42,6 +42,7 @@ function Dashboard() {
     openDownloadModal,
     closeDownloadModal,
     handleUpdateMaxGuests,
+    handleToggleStatus,
   } = useDashboard({ isAuthenticated, addToast });
 
   // Handler for create success - refresh data
@@ -144,6 +145,7 @@ function Dashboard() {
             onDelete={handleDeleteClick}
             onCopyLink={handleCopyLink}
             onUpdateMaxGuests={handleUpdateMaxGuests}
+            onToggleStatus={handleToggleStatus}
           />
         </>
       ) : (

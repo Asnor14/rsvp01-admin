@@ -14,6 +14,7 @@ interface InvitationsListProps {
     onDelete: (id: string, name: string) => void;
     onCopyLink: (id: string) => void;
     onUpdateMaxGuests?: (id: string, maxGuests: number) => void;
+    onToggleStatus?: (id: string, currentStatus: string) => void;
 }
 
 export function InvitationsList({
@@ -22,6 +23,7 @@ export function InvitationsList({
     onDelete,
     onCopyLink,
     onUpdateMaxGuests,
+    onToggleStatus,
 }: InvitationsListProps) {
     if (isLoading) {
         return <div className="p-12 text-center text-wedding-dove">Loading...</div>;
@@ -69,6 +71,7 @@ export function InvitationsList({
                             invitation={invitation}
                             onDelete={onDelete}
                             onCopyLink={onCopyLink}
+                            onToggleStatus={onToggleStatus}
                         />
                     </div>
                 ))}
@@ -93,6 +96,7 @@ export function InvitationsList({
                         onDelete={onDelete}
                         onCopyLink={onCopyLink}
                         onUpdateMaxGuests={onUpdateMaxGuests}
+                        onToggleStatus={onToggleStatus}
                     />
                 ))}
             </div>

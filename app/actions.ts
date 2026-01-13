@@ -152,6 +152,44 @@ export async function updateInvitation(
 }
 
 /**
+ * Toggle invitation status (Lock/Unlock)
+ */
+export async function toggleInvitationStatus(
+    invitationId: string,
+    currentStatus: string
+): Promise<ActionResponse<Invitation>> {
+    if (!invitationId) {
+        return { success: false, error: "Invitation ID is required" };
+    }
+
+    const newStatus = currentStatus === "pending" ? "responded" : "pending";
+
+    try {
+        const { data, error } = await supabase
+            .from("invitations")
+            .update({ status: newStatus })
+            .eq("id", invitationId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error("Error toggling status:", error);
+            return {
+                success: false,
+                error: `Failed to toggle status: ${error.message || 'Unknown error'}`
+            };
+        }
+
+        return { success: true, data };
+    } catch (err) {
+        console.error("Unexpected error during status toggle:", err);
+        return { success: false, error: "An unexpected error occurred" };
+    } finally {
+        revalidatePath("/");
+    }
+}
+
+/**
  * Get all invitations with their guest RSVPs
  */
 export async function getInvitations(): Promise<

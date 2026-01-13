@@ -11,6 +11,8 @@ import {
     Check,
     CheckCircle,
     XCircle,
+    Lock,
+    Unlock,
 } from "lucide-react";
 import type { InvitationWithGuests } from "@/lib/supabase";
 
@@ -22,12 +24,14 @@ interface InvitationCardProps {
     invitation: InvitationWithGuests;
     onDelete: (id: string, name: string) => void;
     onCopyLink: (id: string) => void;
+    onToggleStatus?: (id: string, currentStatus: string) => void;
 }
 
 export function InvitationCard({
     invitation,
     onDelete,
     onCopyLink,
+    onToggleStatus,
 }: InvitationCardProps) {
     const [copied, setCopied] = useState(false);
 
@@ -50,6 +54,7 @@ export function InvitationCard({
                 : `${diffDays} days ago`;
 
     const hasResponses = invitation.stats.total_responses > 0;
+    const isLocked = invitation.status === "responded";
 
     return (
         <div className="bg-white dark:bg-zinc-800 border border-wedding-champagne/40 dark:border-zinc-700 rounded-xl p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -136,10 +141,10 @@ export function InvitationCard({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3">
+            <div className="flex gap-2">
                 <button
                     onClick={handleCopy}
-                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${copied
+                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${copied
                         ? "bg-emerald-500 text-white"
                         : "bg-wedding-gold/10 text-wedding-gold border border-wedding-gold/30 hover:bg-wedding-gold hover:text-white"
                         }`}
@@ -156,12 +161,23 @@ export function InvitationCard({
                         </>
                     )}
                 </button>
+                {onToggleStatus && (
+                    <button
+                        onClick={() => onToggleStatus(invitation.id, invitation.status)}
+                        title={isLocked ? "Unlock RSVP" : "Lock RSVP"}
+                        className={`px-3 py-2.5 rounded-lg border transition-all duration-300 flex items-center justify-center ${isLocked
+                            ? "bg-rose-50 text-rose-500 border-rose-200 hover:bg-rose-500 hover:text-white dark:bg-rose-900/10 dark:text-rose-400 dark:border-rose-800/30"
+                            : "bg-emerald-50 text-emerald-500 border-emerald-200 hover:bg-emerald-500 hover:text-white dark:bg-emerald-900/10 dark:text-emerald-400 dark:border-emerald-800/30"
+                            }`}
+                    >
+                        {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+                    </button>
+                )}
                 <button
                     onClick={() => onDelete(invitation.id, invitation.family_name)}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-50 dark:bg-rose-900/10 text-rose-500 dark:text-rose-400 border border-rose-200 dark:border-rose-800/30 rounded-lg text-sm font-medium hover:bg-rose-500 hover:text-white transition-all duration-300"
+                    className="flex items-center justify-center gap-2 px-3 py-2.5 bg-rose-50 dark:bg-rose-900/10 text-rose-500 dark:text-rose-400 border border-rose-200 dark:border-rose-800/30 rounded-lg text-sm font-medium hover:bg-rose-500 hover:text-white transition-all duration-300"
                 >
                     <Trash2 className="w-4 h-4" />
-                    <span className="hidden sm:inline">Delete</span>
                 </button>
             </div>
         </div>
@@ -177,6 +193,7 @@ interface MobileInvitationRowProps {
     onDelete: (id: string, name: string) => void;
     onCopyLink: (id: string) => void;
     onUpdateMaxGuests?: (id: string, maxGuests: number) => void;
+    onToggleStatus?: (id: string, currentStatus: string) => void;
 }
 
 export function MobileInvitationRow({
@@ -184,6 +201,7 @@ export function MobileInvitationRow({
     onDelete,
     onCopyLink,
     onUpdateMaxGuests,
+    onToggleStatus,
 }: MobileInvitationRowProps) {
     const [copied, setCopied] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -204,6 +222,7 @@ export function MobileInvitationRow({
     };
 
     const hasResponses = invitation.stats.total_responses > 0;
+    const isLocked = invitation.status === "responded";
 
     return (
         <div className="border-b border-wedding-champagne/20 dark:border-zinc-700 bg-white dark:bg-zinc-800 last:border-0">
@@ -219,6 +238,9 @@ export function MobileInvitationRow({
                         </span>
                         {hasResponses && (
                             <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                        )}
+                        {isLocked && (
+                            <Lock className="w-3 h-3 text-rose-500" />
                         )}
                     </div>
                     <div className="text-[10px] text-wedding-dove uppercase tracking-wider flex items-center gap-2 mt-0.5">
@@ -237,8 +259,8 @@ export function MobileInvitationRow({
                             handleCopy();
                         }}
                         className={`flex items-center justify-center p-2 rounded-lg transition-all duration-300 ${copied
-                                ? "bg-emerald-500 text-white"
-                                : "bg-wedding-gold/10 text-wedding-gold hover:bg-wedding-gold hover:text-white"
+                            ? "bg-emerald-500 text-white"
+                            : "bg-wedding-gold/10 text-wedding-gold hover:bg-wedding-gold hover:text-white"
                             }`}
                         title="Copy invitation link"
                     >
@@ -257,15 +279,15 @@ export function MobileInvitationRow({
 
             {/* Expandable Action Panel */}
             {isExpanded && (
-                <div className="px-4 pb-4 pt-0 animate-fadeIn">
-                    {/* Status badge */}
-                    <div className="mb-3">
+                <div className="px-4 pb-4 pt-0 animate-fadeIn text-sm">
+                    {/* Status badge and Toggle */}
+                    <div className="mb-3 flex items-center justify-between">
                         <span
                             className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-medium ${hasResponses
-                                    ? invitation.stats.attending_count > 0
-                                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                        : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
-                                    : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                ? invitation.stats.attending_count > 0
+                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                    : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                                : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                                 }`}
                         >
                             {hasResponses
@@ -274,6 +296,26 @@ export function MobileInvitationRow({
                                     : "Declined"
                                 : "Pending"}
                         </span>
+
+                        {onToggleStatus && (
+                            <button
+                                onClick={() => onToggleStatus(invitation.id, invitation.status)}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-colors ${isLocked
+                                    ? "text-rose-500 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20"
+                                    : "text-emerald-500 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20"
+                                    }`}
+                            >
+                                {isLocked ? (
+                                    <>
+                                        <Lock className="w-3 h-3" /> Locked
+                                    </>
+                                ) : (
+                                    <>
+                                        <Unlock className="w-3 h-3" /> Open
+                                    </>
+                                )}
+                            </button>
+                        )}
                     </div>
 
                     {/* Max Guests Editor */}
@@ -323,8 +365,8 @@ export function MobileInvitationRow({
                         <button
                             onClick={handleCopy}
                             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all duration-300 ${copied
-                                    ? "bg-emerald-500 text-white"
-                                    : "bg-wedding-gold text-white hover:bg-wedding-antique"
+                                ? "bg-emerald-500 text-white"
+                                : "bg-wedding-gold text-white hover:bg-wedding-antique"
                                 }`}
                         >
                             {copied ? (
