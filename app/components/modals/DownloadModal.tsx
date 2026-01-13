@@ -35,7 +35,7 @@ export function DownloadModal({
                     <button
                         onClick={() => onDownload("all")}
                         disabled={isDownloading}
-                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-wedding-gold text-wedding-charcoal font-semibold rounded-lg hover:bg-wedding-antique transition-colors disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-wedding-gold text-white font-semibold rounded-lg hover:bg-wedding-antique transition-colors disabled:opacity-50"
                     >
                         {isDownloading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />

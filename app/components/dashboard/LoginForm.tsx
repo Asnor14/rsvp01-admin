@@ -85,7 +85,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 
                     <button
                         type="submit"
-                        className="w-full mt-4 bg-wedding-gold text-wedding-charcoal font-semibold tracking-widest px-12 py-4 rounded-lg transition-all duration-300 hover:bg-wedding-antique hover:scale-105 hover:shadow-lg"
+                        className="w-full mt-4 bg-wedding-gold text-white font-semibold tracking-widest px-12 py-4 rounded-lg transition-all duration-300 hover:bg-wedding-antique hover:scale-105 hover:shadow-lg"
                     >
                         LOGIN
                     </button>

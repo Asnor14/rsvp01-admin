@@ -107,7 +107,7 @@ export function CreateInvitationForm({ onSuccess }: CreateInvitationFormProps) {
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="md:ml-auto flex items-center justify-center gap-2 bg-wedding-gold text-wedding-charcoal font-semibold tracking-widest px-10 py-4 rounded-lg transition-all duration-300 hover:bg-wedding-antique hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            className="md:ml-auto flex items-center justify-center gap-2 bg-wedding-gold text-white font-semibold tracking-widest px-10 py-4 rounded-lg transition-all duration-300 hover:bg-wedding-antique hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                         >
                             {isPending ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />

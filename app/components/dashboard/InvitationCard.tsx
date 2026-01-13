@@ -72,10 +72,10 @@ export function InvitationCard({
             <div className="flex flex-wrap items-center gap-3 mb-4">
                 <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${hasResponses
-                            ? invitation.stats.attending_count > 0
-                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
-                            : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                        ? invitation.stats.attending_count > 0
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                        : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                         }`}
                 >
                     {hasResponses
@@ -140,8 +140,8 @@ export function InvitationCard({
                 <button
                     onClick={handleCopy}
                     className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${copied
-                            ? "bg-emerald-500 text-white"
-                            : "bg-wedding-gold/10 text-wedding-gold border border-wedding-gold/30 hover:bg-wedding-gold hover:text-white"
+                        ? "bg-emerald-500 text-white"
+                        : "bg-wedding-gold/10 text-wedding-gold border border-wedding-gold/30 hover:bg-wedding-gold hover:text-white"
                         }`}
                 >
                     {copied ? (
@@ -169,21 +169,26 @@ export function InvitationCard({
 }
 
 // ============================================
-// MOBILE COMPACT LIST ITEM
+// MOBILE COMPACT LIST ITEM WITH ACTIONS
 // ============================================
 
 interface MobileInvitationRowProps {
     invitation: InvitationWithGuests;
     onDelete: (id: string, name: string) => void;
     onCopyLink: (id: string) => void;
+    onUpdateMaxGuests?: (id: string, maxGuests: number) => void;
 }
 
 export function MobileInvitationRow({
     invitation,
     onDelete,
     onCopyLink,
+    onUpdateMaxGuests,
 }: MobileInvitationRowProps) {
     const [copied, setCopied] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [maxGuests, setMaxGuests] = useState(invitation.max_guests);
 
     const handleCopy = () => {
         onCopyLink(invitation.id);
@@ -191,33 +196,159 @@ export function MobileInvitationRow({
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const handleSaveMaxGuests = () => {
+        if (onUpdateMaxGuests && maxGuests !== invitation.max_guests) {
+            onUpdateMaxGuests(invitation.id, maxGuests);
+        }
+        setIsEditing(false);
+    };
+
+    const hasResponses = invitation.stats.total_responses > 0;
+
     return (
-        <div className="flex items-center justify-between p-4 border-b border-wedding-champagne/20 dark:border-zinc-700 bg-white dark:bg-zinc-800 last:border-0 hover:bg-wedding-pearl/50 dark:hover:bg-zinc-750">
+        <div className="border-b border-wedding-champagne/20 dark:border-zinc-700 bg-white dark:bg-zinc-800 last:border-0">
+            {/* Main Row - Clickable to expand */}
             <div
-                className="flex-1 min-w-0 pr-4 cursor-pointer"
-                onClick={() => onDelete(invitation.id, invitation.family_name)}
+                className="flex items-center justify-between p-4 cursor-pointer hover:bg-wedding-pearl/50 dark:hover:bg-zinc-750 transition-colors"
+                onClick={() => setIsExpanded(!isExpanded)}
             >
-                <div className="font-semibold text-wedding-charcoal dark:text-wedding-ivory truncate text-sm">
-                    {invitation.family_name}
+                <div className="flex-1 min-w-0 pr-4">
+                    <div className="flex items-center gap-2">
+                        <span className="font-semibold text-wedding-charcoal dark:text-wedding-ivory truncate text-sm">
+                            {invitation.family_name}
+                        </span>
+                        {hasResponses && (
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
+                        )}
+                    </div>
+                    <div className="text-[10px] text-wedding-dove uppercase tracking-wider flex items-center gap-2 mt-0.5">
+                        <span>ID: {invitation.id.slice(0, 6)}...</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                            <Users2 className="w-3 h-3" />
+                            {invitation.max_guests} guests
+                        </span>
+                    </div>
                 </div>
-                <div className="text-[10px] text-wedding-dove uppercase tracking-wider flex items-center gap-2">
-                    ID: {invitation.id.slice(0, 4)}...
-                    {invitation.stats.total_responses > 0 && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-                    )}
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopy();
+                        }}
+                        className={`flex items-center justify-center p-2 rounded-lg transition-all duration-300 ${copied
+                                ? "bg-emerald-500 text-white"
+                                : "bg-wedding-gold/10 text-wedding-gold hover:bg-wedding-gold hover:text-white"
+                            }`}
+                        title="Copy invitation link"
+                    >
+                        {copied ? <Check className="w-4 h-4" /> : <Link className="w-4 h-4" />}
+                    </button>
+                    <svg
+                        className={`w-4 h-4 text-wedding-dove transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                 </div>
             </div>
-            <div>
-                <button
-                    onClick={handleCopy}
-                    className={`flex items-center justify-center px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${copied
-                            ? "bg-emerald-500 text-white"
-                            : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm"
-                        }`}
-                >
-                    {copied ? "Copied" : "Invitation Link"}
-                </button>
-            </div>
+
+            {/* Expandable Action Panel */}
+            {isExpanded && (
+                <div className="px-4 pb-4 pt-0 animate-fadeIn">
+                    {/* Status badge */}
+                    <div className="mb-3">
+                        <span
+                            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-medium ${hasResponses
+                                    ? invitation.stats.attending_count > 0
+                                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                        : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                                    : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                }`}
+                        >
+                            {hasResponses
+                                ? invitation.stats.attending_count > 0
+                                    ? `${invitation.stats.attending_count} Confirmed`
+                                    : "Declined"
+                                : "Pending"}
+                        </span>
+                    </div>
+
+                    {/* Max Guests Editor */}
+                    <div className="flex items-center justify-between mb-3 p-3 bg-wedding-pearl/50 dark:bg-zinc-900/50 rounded-lg">
+                        <div className="text-xs text-wedding-slate dark:text-wedding-dove">
+                            Maximum Guests
+                        </div>
+                        {isEditing ? (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setMaxGuests(Math.max(1, maxGuests - 1))}
+                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-wedding-champagne/30 dark:bg-zinc-700 text-wedding-charcoal dark:text-wedding-ivory hover:bg-wedding-gold hover:text-white transition-colors"
+                                >
+                                    -
+                                </button>
+                                <span className="w-6 text-center font-semibold text-wedding-charcoal dark:text-wedding-ivory">
+                                    {maxGuests}
+                                </span>
+                                <button
+                                    onClick={() => setMaxGuests(Math.min(10, maxGuests + 1))}
+                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-wedding-champagne/30 dark:bg-zinc-700 text-wedding-charcoal dark:text-wedding-ivory hover:bg-wedding-gold hover:text-white transition-colors"
+                                >
+                                    +
+                                </button>
+                                <button
+                                    onClick={handleSaveMaxGuests}
+                                    className="ml-2 px-3 py-1 text-xs font-medium bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="flex items-center gap-1.5 text-xs font-medium text-wedding-gold hover:text-wedding-antique transition-colors"
+                            >
+                                <span>{invitation.max_guests}</span>
+                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleCopy}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all duration-300 ${copied
+                                    ? "bg-emerald-500 text-white"
+                                    : "bg-wedding-gold text-white hover:bg-wedding-antique"
+                                }`}
+                        >
+                            {copied ? (
+                                <>
+                                    <Check className="w-3.5 h-3.5" />
+                                    Copied!
+                                </>
+                            ) : (
+                                <>
+                                    <Link className="w-3.5 h-3.5" />
+                                    Copy Link
+                                </>
+                            )}
+                        </button>
+                        <button
+                            onClick={() => onDelete(invitation.id, invitation.family_name)}
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-50 dark:bg-rose-900/10 text-rose-500 dark:text-rose-400 border border-rose-200 dark:border-rose-800/30 rounded-lg text-xs font-medium hover:bg-rose-500 hover:text-white transition-all duration-300"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

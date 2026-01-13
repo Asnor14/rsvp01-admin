@@ -5,6 +5,7 @@ import {
     getInvitations,
     getDashboardStats,
     deleteInvitation,
+    updateInvitation,
 } from "../actions";
 import type { InvitationWithGuests, DashboardStats } from "@/lib/supabase";
 import type { DeleteModalState } from "../types";
@@ -94,15 +95,30 @@ export function useDashboard({ isAuthenticated, addToast }: UseDashboardProps) {
                 const result = await getInvitations();
 
                 if (!result.success || !result.data) {
-                    throw new Error("Failed to fetch data from database");
+                    throw new Error(result.error || "Failed to fetch data from database");
                 }
 
-                generateRSVPPdf(result.data, type);
-                addToast("success", `Downloaded guest records as PDF!`);
-                setDownloadModal(false);
+                // Check if there's any data to export
+                if (result.data.length === 0) {
+                    addToast("info", "No invitations found to export");
+                    setIsDownloading(false);
+                    return;
+                }
+
+                // Generate PDF with improved generator
+                const pdfResult = generateRSVPPdf(result.data, type);
+
+                if (pdfResult.success) {
+                    const typeLabel = type === "accepted" ? "confirmed" : "all";
+                    addToast("success", `Downloaded ${pdfResult.guestCount} ${typeLabel} guest records as PDF!`);
+                    setDownloadModal(false);
+                } else {
+                    throw new Error(pdfResult.error || "Failed to generate PDF");
+                }
             } catch (error) {
                 console.error("Download error:", error);
-                addToast("error", "Failed to generate PDF");
+                const message = error instanceof Error ? error.message : "Failed to generate PDF";
+                addToast("error", message);
             }
 
             setIsDownloading(false);
@@ -117,6 +133,19 @@ export function useDashboard({ isAuthenticated, addToast }: UseDashboardProps) {
     const closeDownloadModal = useCallback(() => {
         setDownloadModal(false);
     }, []);
+
+    const handleUpdateMaxGuests = useCallback(
+        async (id: string, maxGuests: number) => {
+            const result = await updateInvitation(id, maxGuests);
+            if (result.success) {
+                addToast("success", `Updated max guests to ${maxGuests}`);
+                fetchData();
+            } else {
+                addToast("error", result.error || "Failed to update");
+            }
+        },
+        [addToast, fetchData]
+    );
 
     return {
         stats,
@@ -134,5 +163,6 @@ export function useDashboard({ isAuthenticated, addToast }: UseDashboardProps) {
         handleDownload,
         openDownloadModal,
         closeDownloadModal,
+        handleUpdateMaxGuests,
     };
 }

@@ -13,6 +13,7 @@ interface InvitationsListProps {
     isLoading: boolean;
     onDelete: (id: string, name: string) => void;
     onCopyLink: (id: string) => void;
+    onUpdateMaxGuests?: (id: string, maxGuests: number) => void;
 }
 
 export function InvitationsList({
@@ -20,6 +21,7 @@ export function InvitationsList({
     isLoading,
     onDelete,
     onCopyLink,
+    onUpdateMaxGuests,
 }: InvitationsListProps) {
     if (isLoading) {
         return <div className="p-12 text-center text-wedding-dove">Loading...</div>;
@@ -47,7 +49,7 @@ export function InvitationsList({
                 <h2 className="text-2xl md:text-3xl font-serif text-wedding-charcoal dark:text-wedding-ivory">
                     Invitation Manager
                 </h2>
-                <span className="bg-wedding-gold text-wedding-charcoal text-sm font-semibold px-3 py-1 rounded-full">
+                <span className="bg-wedding-gold text-white text-sm font-semibold px-3 py-1 rounded-full">
                     {invitations.length}
                 </span>
             </div>
@@ -75,12 +77,12 @@ export function InvitationsList({
             {/* Mobile Compact List */}
             <div className="md:hidden bg-white dark:bg-zinc-800 rounded-xl shadow-md border border-wedding-champagne/30 dark:border-zinc-700 overflow-hidden">
                 {/* Table Header */}
-                <div className="flex justify-between p-4 bg-wedding-pearl dark:bg-zinc-900 border-b border-wedding-champagne/20 dark:border-zinc-700">
+                <div className="flex justify-between items-center p-4 bg-wedding-pearl dark:bg-zinc-900 border-b border-wedding-champagne/20 dark:border-zinc-700">
                     <span className="text-xs font-bold text-wedding-slate dark:text-wedding-dove uppercase tracking-wider">
-                        Name
+                        Invitations
                     </span>
-                    <span className="text-xs font-bold text-wedding-slate dark:text-wedding-dove uppercase tracking-wider">
-                        Invitation Link
+                    <span className="text-xs text-wedding-dove">
+                        Tap to expand
                     </span>
                 </div>
                 {/* List Items */}
@@ -90,6 +92,7 @@ export function InvitationsList({
                         invitation={invitation}
                         onDelete={onDelete}
                         onCopyLink={onCopyLink}
+                        onUpdateMaxGuests={onUpdateMaxGuests}
                     />
                 ))}
             </div>

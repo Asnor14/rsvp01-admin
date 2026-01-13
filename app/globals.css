@@ -6,6 +6,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Wedding Theme Colors using Tailwind CSS 4 @theme directive */
+/* Updated: Gold/Yellow -> Red color scheme */
 @theme inline {
   /* Background Colors */
   --color-wedding-ivory: #FFFDF7;
@@ -13,10 +14,13 @@
   --color-wedding-blush: #F8F3EF;
   --color-wedding-pearl: #F5F5F0;
 
-  /* Gold Accents */
-  --color-wedding-champagne: #F7E7CE;
-  --color-wedding-gold: #D4AF6F;
-  --color-wedding-antique: #C5A572;
+  /* Red Accents (replacing Gold) */
+  --color-wedding-champagne: #FECACA;
+  /* red-200 */
+  --color-wedding-gold: #DC2626;
+  /* red-600 - Primary accent */
+  --color-wedding-antique: #B91C1C;
+  /* red-700 - Hover state */
 
   /* Text Tones */
   --color-wedding-charcoal: #2B2B2B;
@@ -24,7 +28,8 @@
   --color-wedding-dove: #6B6B6B;
 
   /* Additional Colors */
-  --color-wedding-rose: #E8D5D0;
+  --color-wedding-rose: #FEE2E2;
+  /* red-100 */
   --color-wedding-sage: #D4D9D0;
 
   /* Font Families */

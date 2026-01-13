@@ -113,6 +113,45 @@ export async function deleteInvitation(
 }
 
 /**
+ * Update an invitation (max_guests)
+ */
+export async function updateInvitation(
+    invitationId: string,
+    maxGuests: number
+): Promise<ActionResponse<Invitation>> {
+    if (!invitationId) {
+        return { success: false, error: "Invitation ID is required" };
+    }
+    if (maxGuests < 1 || maxGuests > 10) {
+        return { success: false, error: "Max guests must be between 1 and 10" };
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from("invitations")
+            .update({ max_guests: maxGuests })
+            .eq("id", invitationId)
+            .select()
+            .single();
+
+        if (error) {
+            console.error("Error updating invitation:", error);
+            return {
+                success: false,
+                error: `Failed to update invitation: ${error.message || 'Unknown error'}`
+            };
+        }
+
+        return { success: true, data };
+    } catch (err) {
+        console.error("Unexpected error during update:", err);
+        return { success: false, error: "An unexpected error occurred during update" };
+    } finally {
+        revalidatePath("/");
+    }
+}
+
+/**
  * Get all invitations with their guest RSVPs
  */
 export async function getInvitations(): Promise<
