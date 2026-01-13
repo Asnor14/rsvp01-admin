@@ -206,7 +206,7 @@ export function MobileInvitationRow({
     const [copied, setCopied] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [maxGuests, setMaxGuests] = useState(invitation.max_guests);
+    const [maxGuests, setMaxGuests] = useState(Number(invitation.max_guests));
 
     const handleCopy = () => {
         onCopyLink(invitation.id);
@@ -297,25 +297,7 @@ export function MobileInvitationRow({
                                 : "Pending"}
                         </span>
 
-                        {onToggleStatus && (
-                            <button
-                                onClick={() => onToggleStatus(invitation.id, invitation.status)}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-colors ${isLocked
-                                    ? "text-rose-500 bg-rose-50 hover:bg-rose-100 dark:bg-rose-900/20"
-                                    : "text-emerald-500 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20"
-                                    }`}
-                            >
-                                {isLocked ? (
-                                    <>
-                                        <Lock className="w-3 h-3" /> Locked
-                                    </>
-                                ) : (
-                                    <>
-                                        <Unlock className="w-3 h-3" /> Open
-                                    </>
-                                )}
-                            </button>
-                        )}
+
                     </div>
 
                     {/* Max Guests Editor */}
@@ -326,7 +308,7 @@ export function MobileInvitationRow({
                         {isEditing ? (
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => setMaxGuests(Math.max(1, maxGuests - 1))}
+                                    onClick={() => setMaxGuests(Math.max(1, Number(maxGuests) - 1))}
                                     className="w-7 h-7 flex items-center justify-center rounded-full bg-wedding-champagne/30 dark:bg-zinc-700 text-wedding-charcoal dark:text-wedding-ivory hover:bg-wedding-gold hover:text-white transition-colors"
                                 >
                                     -
@@ -335,7 +317,7 @@ export function MobileInvitationRow({
                                     {maxGuests}
                                 </span>
                                 <button
-                                    onClick={() => setMaxGuests(Math.min(10, maxGuests + 1))}
+                                    onClick={() => setMaxGuests(Math.min(10, Number(maxGuests) + 1))}
                                     className="w-7 h-7 flex items-center justify-center rounded-full bg-wedding-champagne/30 dark:bg-zinc-700 text-wedding-charcoal dark:text-wedding-ivory hover:bg-wedding-gold hover:text-white transition-colors"
                                 >
                                     +
@@ -381,6 +363,18 @@ export function MobileInvitationRow({
                                 </>
                             )}
                         </button>
+                        {onToggleStatus && (
+                            <button
+                                onClick={() => onToggleStatus(invitation.id, invitation.status)}
+                                title={isLocked ? "Unlock RSVP" : "Lock RSVP"}
+                                className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-medium border transition-all duration-300 ${isLocked
+                                    ? "bg-rose-50 text-rose-500 border-rose-200 hover:bg-rose-500 hover:text-white dark:bg-rose-900/10 dark:text-rose-400 dark:border-rose-800/30"
+                                    : "bg-emerald-50 text-emerald-500 border-emerald-200 hover:bg-emerald-500 hover:text-white dark:bg-emerald-900/10 dark:text-emerald-400 dark:border-emerald-800/30"
+                                    }`}
+                            >
+                                {isLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
+                            </button>
+                        )}
                         <button
                             onClick={() => onDelete(invitation.id, invitation.family_name)}
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-50 dark:bg-rose-900/10 text-rose-500 dark:text-rose-400 border border-rose-200 dark:border-rose-800/30 rounded-lg text-xs font-medium hover:bg-rose-500 hover:text-white transition-all duration-300"
