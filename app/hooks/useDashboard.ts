@@ -7,6 +7,7 @@ import {
     deleteInvitation,
     updateInvitation,
 } from "../actions";
+import { supabase } from "@/lib/supabase";
 import type { InvitationWithGuests, DashboardStats } from "@/lib/supabase";
 import type { DeleteModalState } from "../types";
 import { generateRSVPPdf } from "../utils/pdf-generator";
@@ -50,6 +51,22 @@ export function useDashboard({ isAuthenticated, addToast }: UseDashboardProps) {
     useEffect(() => {
         if (isAuthenticated) {
             fetchData();
+
+            // Real-time subscription for guests table
+            const channel = supabase
+                .channel('realtime-guests')
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'guests' },
+                    () => {
+                        fetchData();
+                    }
+                )
+                .subscribe();
+
+            return () => {
+                supabase.removeChannel(channel);
+            };
         }
     }, [isAuthenticated, fetchData]);
 

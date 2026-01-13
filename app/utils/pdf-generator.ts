@@ -63,6 +63,7 @@ export function generateRSVPPdf(
                     month: "short",
                     day: "numeric",
                 }),
+                additionalGuests: guest.additional_guests || [],
             }))
         );
 
@@ -141,17 +142,24 @@ export function generateRSVPPdf(
             "RSVP Date",
         ];
 
-        // Table data with proper formatting
-        const tableData = allGuests.map((guest, index) => [
-            (index + 1).toString(),
-            guest.guestName || "Unknown",
-            guest.familyName || "Unknown",
-            guest.email,
-            guest.attending ? "Attending" : "Declined",
-            guest.attending ? guest.guestCount.toString() : "-",
-            guest.message.length > 35 ? guest.message.slice(0, 35) + "..." : guest.message || "-",
-            guest.createdAt,
-        ]);
+        const tableData = allGuests.map((guest, index) => {
+            const extraNames = guest.additionalGuests.map((ag) => {
+                const name = typeof ag === 'string' ? ag : ag.name;
+                return `+ ${name || "Unknown"}`;
+            }).join("\n");
+            const combinedName = guest.guestName + (extraNames ? "\n" + extraNames : "");
+
+            return [
+                (index + 1).toString(),
+                combinedName || "Unknown",
+                guest.familyName || "Unknown",
+                guest.email,
+                guest.attending ? "Attending" : "Declined",
+                guest.attending ? guest.guestCount.toString() : "-",
+                guest.message.length > 35 ? guest.message.slice(0, 35) + "..." : guest.message || "-",
+                guest.createdAt,
+            ];
+        });
 
         // Generate table with fixed column widths totaling to page width minus margins
         // A4 Landscape = 297mm, minus 30mm margins = 267mm available

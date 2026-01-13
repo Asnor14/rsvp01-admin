@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { LayoutDashboard, LogOut, Download, Moon, Sun } from "lucide-react";
+import { LayoutDashboard, LogOut, Download, Moon, Sun, History } from "lucide-react";
 
 // ============================================
 // HEADER COMPONENT
@@ -11,9 +11,11 @@ import { LayoutDashboard, LogOut, Download, Moon, Sun } from "lucide-react";
 interface HeaderProps {
     onLogout: () => void;
     onDownload: () => void;
+    activeView: "dashboard" | "history";
+    onViewChange: (view: "dashboard" | "history") => void;
 }
 
-export function Header({ onLogout, onDownload }: HeaderProps) {
+export function Header({ onLogout, onDownload, activeView, onViewChange }: HeaderProps) {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
@@ -29,7 +31,10 @@ export function Header({ onLogout, onDownload }: HeaderProps) {
     return (
         <header className="bg-wedding-pearl dark:bg-zinc-900 border-b border-wedding-champagne/30 dark:border-wedding-gold/10 px-6 md:px-12 py-6 shadow-md shadow-wedding-champagne/10 transition-colors duration-300">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4 w-full sm:w-auto">
+                <div
+                    className="flex items-center gap-4 w-full sm:w-auto cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => onViewChange("dashboard")}
+                >
                     <div className="bg-wedding-champagne/30 dark:bg-wedding-gold/10 p-2 rounded-lg">
                         <LayoutDashboard className="w-8 h-8 text-wedding-gold" />
                     </div>
@@ -44,6 +49,28 @@ export function Header({ onLogout, onDownload }: HeaderProps) {
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end flex-wrap">
+                    {/* View History Button */}
+                    <button
+                        onClick={() => onViewChange(activeView === "dashboard" ? "history" : "dashboard")}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border border-wedding-gold/30 transition-all ${activeView === "history"
+                            ? "bg-wedding-gold text-white"
+                            : "text-wedding-gold hover:bg-wedding-gold/10"
+                            }`}
+                        title={activeView === "history" ? "Back to Dashboard" : "View History"}
+                    >
+                        {activeView === "history" ? (
+                            <>
+                                <LayoutDashboard className="w-4 h-4" />
+                                <span className="hidden sm:inline">Dashboard</span>
+                            </>
+                        ) : (
+                            <>
+                                <History className="w-4 h-4" />
+                                <span className="hidden sm:inline">History</span>
+                            </>
+                        )}
+                    </button>
+
                     {/* Download Button */}
                     <button
                         onClick={onDownload}

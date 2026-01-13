@@ -18,6 +18,7 @@ export interface Guest {
   guest_count: number;
   message: string | null;
   email: string | null;
+  additional_guests?: (string | { name: string })[] | null;
 }
 
 export interface InvitationWithGuests extends Invitation {
