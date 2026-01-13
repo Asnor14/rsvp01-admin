@@ -224,23 +224,27 @@ export async function getDashboardStats(): Promise<ActionResponse<DashboardStats
     // Fetch all guests for statistics
     const { data: guests, error: guestError } = await supabase
         .from("guests")
-        .select("attending, guest_count");
+        .select("attending, guest_count, invitation_id");
 
     if (guestError) {
         console.error("Error fetching guests:", guestError);
         return { success: false, error: "Failed to fetch statistics" };
     }
 
-    const guestList = guests as { attending: boolean; guest_count: number }[];
-    const attendingGuests = guestList.filter((g) => g.attending);
-    const declinedGuests = guestList.filter((g) => !g.attending);
+    // Filter guests that have a valid invitation_id (orphaned guests don't count)
+    const validGuests = (guests as { attending: boolean; guest_count: number; invitation_id: string | null }[])
+        .filter(g => g.invitation_id);
+
+    // Calculate stats based on valid guests only
+    const attendingGuests = validGuests.filter((g) => g.attending);
+    const declinedGuests = validGuests.filter((g) => !g.attending);
 
     const totalAttending = attendingGuests.reduce(
         (sum, g) => sum + g.guest_count,
         0
     );
     const totalDeclined = declinedGuests.length;
-    const totalGuestCount = guestList.reduce((sum, g) => sum + g.guest_count, 0);
+    const totalGuestCount = validGuests.reduce((sum, g) => sum + g.guest_count, 0);
 
     // Calculate response rate
     const invitationsWithResponse = new Set(
