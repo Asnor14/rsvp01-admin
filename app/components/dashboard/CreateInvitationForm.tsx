@@ -14,7 +14,7 @@ interface CreateInvitationFormProps {
 
 export function CreateInvitationForm({ onSuccess }: CreateInvitationFormProps) {
     const [familyName, setFamilyName] = useState("");
-    const [maxGuests, setMaxGuests] = useState(2);
+    const [maxGuests, setMaxGuests] = useState<number | string>(2);
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState("");
     const [isCollapsed, setIsCollapsed] = useState(true);
@@ -28,8 +28,10 @@ export function CreateInvitationForm({ onSuccess }: CreateInvitationFormProps) {
             return;
         }
 
+        const guestsCount = Number(maxGuests) || 2;
+
         startTransition(async () => {
-            const result = await createInvitation(familyName, maxGuests);
+            const result = await createInvitation(familyName, guestsCount);
             if (result.success) {
                 setFamilyName("");
                 setMaxGuests(2);
@@ -91,7 +93,11 @@ export function CreateInvitationForm({ onSuccess }: CreateInvitationFormProps) {
                         <input
                             type="number"
                             value={maxGuests}
-                            onChange={(e) => setMaxGuests(parseInt(e.target.value) || 2)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === "") setMaxGuests("");
+                                else setMaxGuests(parseInt(val));
+                            }}
                             min={1}
                             max={10}
                             className="w-full bg-transparent border-b-2 border-wedding-champagne/40 dark:border-zinc-700 focus:border-wedding-gold focus:outline-none py-3 text-wedding-charcoal dark:text-wedding-ivory transition-colors duration-300"
@@ -119,6 +125,7 @@ export function CreateInvitationForm({ onSuccess }: CreateInvitationFormProps) {
                     </div>
                 </form>
             </div>
+
         </div>
     );
 }
