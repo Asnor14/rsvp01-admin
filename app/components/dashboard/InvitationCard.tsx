@@ -13,6 +13,7 @@ import {
     XCircle,
     Lock,
     Unlock,
+    MessageCircle,
 } from "lucide-react";
 import type { InvitationWithGuests } from "@/lib/supabase";
 
@@ -25,6 +26,7 @@ interface InvitationCardProps {
     onDelete: (id: string, name: string) => void;
     onCopyLink: (id: string) => void;
     onToggleStatus?: (id: string, currentStatus: string) => void;
+    onViewMessage?: (invitation: InvitationWithGuests) => void;
 }
 
 export function InvitationCard({
@@ -32,6 +34,7 @@ export function InvitationCard({
     onDelete,
     onCopyLink,
     onToggleStatus,
+    onViewMessage,
 }: InvitationCardProps) {
     const [copied, setCopied] = useState(false);
 
@@ -55,6 +58,7 @@ export function InvitationCard({
 
     const hasResponses = invitation.stats.total_responses > 0;
     const isLocked = invitation.status === "responded";
+    const hasMessage = invitation.guests[0]?.message;
 
     return (
         <div className="bg-white dark:bg-zinc-800 border border-wedding-champagne/40 dark:border-zinc-700 rounded-xl p-6 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -161,6 +165,19 @@ export function InvitationCard({
                         </>
                     )}
                 </button>
+                {onViewMessage && (
+                    <button
+                        onClick={() => onViewMessage(invitation)}
+                        title={hasMessage ? "View Message" : "No message"}
+                        disabled={!hasMessage}
+                        className={`px-3 py-2.5 rounded-lg border transition-all duration-300 flex items-center justify-center ${hasMessage
+                                ? "bg-blue-50 text-blue-500 border-blue-200 hover:bg-blue-500 hover:text-white dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-800/30"
+                                : "bg-gray-50 text-gray-300 border-gray-200 cursor-not-allowed dark:bg-zinc-900/10 dark:text-zinc-600 dark:border-zinc-800/30"
+                            }`}
+                    >
+                        <MessageCircle className="w-4 h-4" />
+                    </button>
+                )}
                 {onToggleStatus && (
                     <button
                         onClick={() => onToggleStatus(invitation.id, invitation.status)}
@@ -194,6 +211,7 @@ interface MobileInvitationRowProps {
     onCopyLink: (id: string) => void;
     onUpdateMaxGuests?: (id: string, maxGuests: number) => void;
     onToggleStatus?: (id: string, currentStatus: string) => void;
+    onViewMessage?: (invitation: InvitationWithGuests) => void;
 }
 
 export function MobileInvitationRow({
@@ -202,6 +220,7 @@ export function MobileInvitationRow({
     onCopyLink,
     onUpdateMaxGuests,
     onToggleStatus,
+    onViewMessage,
 }: MobileInvitationRowProps) {
     const [copied, setCopied] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -223,6 +242,7 @@ export function MobileInvitationRow({
 
     const hasResponses = invitation.stats.total_responses > 0;
     const isLocked = invitation.status === "responded";
+    const hasMessage = invitation.guests[0]?.message;
 
     return (
         <div className="border-b border-wedding-champagne/20 dark:border-zinc-700 bg-white dark:bg-zinc-800 last:border-0">
@@ -266,6 +286,22 @@ export function MobileInvitationRow({
                     >
                         {copied ? <Check className="w-4 h-4" /> : <Link className="w-4 h-4" />}
                     </button>
+                    {onViewMessage && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (hasMessage) onViewMessage(invitation);
+                            }}
+                            disabled={!hasMessage}
+                            className={`flex items-center justify-center p-2 rounded-lg transition-all duration-300 ${hasMessage
+                                    ? "bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white"
+                                    : "bg-gray-100/10 text-gray-400 cursor-not-allowed dark:text-zinc-600"
+                                }`}
+                            title={hasMessage ? "View message" : "No message"}
+                        >
+                            <MessageCircle className="w-4 h-4" />
+                        </button>
+                    )}
                     <svg
                         className={`w-4 h-4 text-wedding-dove transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
                         fill="none"

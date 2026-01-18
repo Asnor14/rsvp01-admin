@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { Loader2, Mail, CheckCircle, XCircle } from "lucide-react";
+import type { InvitationWithGuests } from "@/lib/supabase";
 
 // Hooks
 import { useAuth, useToast, useDashboard } from "./hooks";
 
 // Components
 import { ToastContainer, StatCard } from "./components/ui";
-import { DeleteModal, DownloadModal } from "./components/modals";
+import { DeleteModal, DownloadModal, MessageModal, LockConfirmModal } from "./components/modals";
 import {
   LoginForm,
   Header,
@@ -25,6 +26,9 @@ function Dashboard() {
   const { isAuthenticated, isCheckingAuth, login, logout } = useAuth();
   const { toasts, addToast, removeToast } = useToast();
   const [activeView, setActiveView] = useState<"dashboard" | "history">("dashboard");
+  const [messageModal, setMessageModal] = useState<InvitationWithGuests | null>(null);
+  const [lockConfirmModal, setLockConfirmModal] = useState<{ id: string; name: string; isLocking: boolean } | null>(null);
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const {
     stats,
     invitations,
@@ -49,6 +53,29 @@ function Dashboard() {
   const handleCreateSuccess = (msg: string) => {
     addToast("success", msg);
     fetchData();
+  };
+
+  // Handler for viewing message
+  const handleViewMessage = (invitation: InvitationWithGuests) => {
+    setMessageModal(invitation);
+  };
+
+  // Handler for lock/unlock confirmation
+  const handleLockClick = (id: string, currentStatus: string) => {
+    const invitation = invitations.find(inv => inv.id === id);
+    if (invitation) {
+      const isLocking = currentStatus !== "responded";
+      setLockConfirmModal({ id, name: invitation.family_name, isLocking });
+    }
+  };
+
+  // Confirm lock/unlock
+  const handleLockConfirm = async () => {
+    if (!lockConfirmModal) return;
+    setIsTogglingStatus(true);
+    await handleToggleStatus(lockConfirmModal.id, lockConfirmModal.isLocking ? "pending" : "responded");
+    setIsTogglingStatus(false);
+    setLockConfirmModal(null);
   };
 
   // Show loading while checking auth
@@ -86,6 +113,25 @@ function Dashboard() {
           onDownload={handleDownload}
           onCancel={closeDownloadModal}
           isDownloading={isDownloading}
+        />
+      )}
+
+      {/* Message Modal */}
+      {messageModal && (
+        <MessageModal
+          invitation={messageModal}
+          onClose={() => setMessageModal(null)}
+        />
+      )}
+
+      {/* Lock Confirm Modal */}
+      {lockConfirmModal && (
+        <LockConfirmModal
+          familyName={lockConfirmModal.name}
+          isLocking={lockConfirmModal.isLocking}
+          onConfirm={handleLockConfirm}
+          onCancel={() => setLockConfirmModal(null)}
+          isProcessing={isTogglingStatus}
         />
       )}
 
@@ -145,7 +191,8 @@ function Dashboard() {
             onDelete={handleDeleteClick}
             onCopyLink={handleCopyLink}
             onUpdateMaxGuests={handleUpdateMaxGuests}
-            onToggleStatus={handleToggleStatus}
+            onToggleStatus={handleLockClick}
+            onViewMessage={handleViewMessage}
           />
         </>
       ) : (
